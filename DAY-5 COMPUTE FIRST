@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+#define MAX 10
+
+void findFirst(char, int, int);
+void addToResultSet(char);
+
+int numOfProductions;
+char productionSet[MAX][MAX];
+char first[MAX];
+
+int main() {
+    int i;
+    int choice;
+    char c;
+    char result[MAX];
+
+    printf("Enter the number of productions: ");
+    scanf("%d", &numOfProductions);
+    
+    printf("Enter the productions (in the format A=B):\n");
+    for(i = 0; i < numOfProductions; i++) {
+        scanf("%s", productionSet[i]);
+    }
+
+    do {
+        printf("Find the First of: ");
+        scanf(" %c", &c);
+        findFirst(c, 0, 0);
+        printf("First(%c) = { ", c);
+        for(i = 0; i < strlen(first); i++) {
+            printf("%c ", first[i]);
+        }
+        printf("}\n");
+        first[0] = '\0'; // Reset the first set
+
+        printf("Press 1 to continue or 0 to exit: ");
+        scanf("%d", &choice);
+    } while(choice == 1);
+
+    return 0;
+}
+
+void findFirst(char c, int q1, int q2) {
+    int j;
+
+    if(!(isupper(c))) {
+        addToResultSet(c);
+        return;
+    }
+
+    for(j = 0; j < numOfProductions; j++) {
+        if(productionSet[j][0] == c) {
+            if(productionSet[j][2] == '#') {
+                if(productionSet[q1][q2] == '\0')
+                    addToResultSet('#');
+                else if(productionSet[q1][q2] != '\0' && (q1 != 0 || q2 != 0)) {
+                    findFirst(productionSet[q1][q2], q1, (q2+1));
+                }
+                else
+                    addToResultSet('#');
+            }
+            else if(!isupper(productionSet[j][2])) {
+                addToResultSet(productionSet[j][2]);
+            }
+            else {
+                findFirst(productionSet[j][2], j, 3);
+            }
+        }
+    }
+}
+
+void addToResultSet(char c) {
+    int i;
+    for(i = 0; i <= strlen(first); i++) {
+        if(first[i] == c) {
+            return;
+        }
+    }
+    first[strlen(first)] = c;
+    first[strlen(first) + 1] = '\0';
+}
